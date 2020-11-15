@@ -1,0 +1,622 @@
+//
+//  ViewController.swift
+//  Word Flakes
+//
+//  Created by Tatyana kudryavtseva on 23/07/16.
+//  Copyright © 2016 Organized Chaos. All rights reserved.
+//
+
+import UIKit
+import Darwin
+
+class MainController: UIViewController {
+
+    
+// MARK: controllers
+    
+    @IBOutlet weak var wordView: WordView!
+    @IBOutlet weak var boardView: UIImageView!
+
+    @IBOutlet weak var playButton: UIButton!
+    
+    @IBOutlet weak var backspaceButton: UIButton!
+    @IBOutlet weak var lblEnergy: UILabel!
+    @IBOutlet weak var lblEnergyAdd: UILabel!
+    
+    @IBOutlet weak var lblScore: UILabel!
+    @IBOutlet weak var lblScoreAdd: UILabel!
+
+    @IBOutlet weak var lblStatus: UILabel!
+    @IBOutlet weak var lblPause: UIButton!
+    
+// MARK: constants
+    
+    enum GameState {
+        case GameStarted
+        case GamePaused
+        case GameOver
+    }
+    
+    let COLOR_PLATE = [UIColor( red:  0.564 , green: 0.764, blue:0.9519, alpha: 0.7 ) , UIColor( red:  0.564 , green: 0.88235, blue:0.882, alpha: 0.7 ),  UIColor( red:  0.564 , green: 0.8824, blue:0.7059, alpha: 0.7 ), UIColor( red:  0.564 , green: 0.8824, blue:0.4705, alpha: 0.7 ), UIColor( red:  0.733 , green: 0.8824, blue:0.3529, alpha: 0.7 ) , UIColor( red:  0.8824 , green: 0.8824, blue:0.3829, alpha: 0.7 ),  UIColor( red:  0.9019 , green: 0.8078, blue:0.1960, alpha: 0.85 ),  UIColor( red:  0.9019 , green: 0.63137, blue:0.1960, alpha: 0.85 ) , UIColor( red:  0.9019 , green: 0.39215, blue:0.1960, alpha: 0.85 ), UIColor( red:  0.8019 , green: 0.1960, blue:0.25, alpha: 0.85 ) ]
+    
+    let defaultTxtColor = UIColor(red: 0.357258, green: 0.740995, blue: 1, alpha: 1)
+    
+    let INIT_ENERGY: Double = 100
+    let EXPONENT   : Double = 0.70
+    let TIME_CONST : Double = 0.015
+    let TIME_MULT  : Double = 0.00013
+    let TIME_INT   : Double = 0.03
+    let LOW_ENERGY_MARKER : Double = 75
+    let DUR_SPAWNER: Double = 12
+    let NUM_CHARS  : Int    = 5
+    let SPAWNER_CHARS: Int  = 10
+    
+    let defaults = NSUserDefaults.standardUserDefaults()
+    
+ 
+// MARK: properties
+    
+    var specialClock = 0.00
+    var gameState : GameState!
+    var gameStateBeforePause : GameState!
+    private var highScores = [Int]()
+    private var timer      = NSTimer()
+    
+    private var energy      : Double = 0.0
+    private var timeElapsed : Double = 0
+    private var freeLetters = [LetterView]()
+    private var highScore   = 0
+    private var score       = 0
+    
+// MARK: control actions
+    
+    @IBAction func backspaceButtonClicked(sender: UIButton) {
+        
+        if (gameState != GameState.GameStarted){return}
+        
+        let value = wordView.removeLastLetter()
+        
+        addScore(0, energyAdd: -Double(value) , display: true)
+       
+    }
+    
+    
+    @IBAction func playButtonClicked(sender: UIButton) {
+        
+        
+        if (gameState == GameState.GameOver){
+            // restart the game
+            run()
+            
+        }
+        
+        let toAdd = wordView.submitWord()
+        
+        if (toAdd != 0){
+            addScore(toAdd, energyAdd: Double(toAdd ), display: true)
+        }
+        
+    }
+        
+    /*This function identifies the Special Tile and calls approapreite method(s) associated with
+   that tile */
+    
+    func specialActivated(tile : LetterView){
+        
+        if (gameState != GameState.GameStarted) {return}
+        
+        freeLetters = freeLetters.filter({ $0 != tile })
+        
+        if tile.letter == "*"{
+            activateSpawner(tile)
+        }
+        
+        if tile.letter == "BOOM"{
+            sonicBoom(tile)
+        }
+    
+        
+    }
+    
+    
+    func letterClicked(button : LetterView){
+        
+        
+        if (gameState != GameState.GameStarted){return}
+        
+        if (button.superview == wordView){return} // letter is already selected
+        
+        
+        freeLetters = freeLetters.filter({ $0 != button })
+        
+        
+        if (button.letter == "?"){
+            button.decorate("A", multiplier:  button.multiplier, value: button.letterValue)
+        }
+        
+        
+        wordView.addLetter(button)
+        
+        
+        if (freeLetters.count < NUM_CHARS) || (specialClock > 0){
+        
+        addFreeLetter()
+            
+        }
+        
+    }
+    
+    
+    override func viewDidLoad() {
+       
+        
+        highScores = defaults.objectForKey("HighScores") as? [Int] ?? [Int]()
+        
+        if !(highScores.isEmpty){
+            highScore = highScores[0]
+        }
+
+        
+        super.viewDidLoad()
+        
+        let deleteAll = UILongPressGestureRecognizer(target: self, action: #selector(deleteAll(_:)))
+        deleteAll.minimumPressDuration = 0.25
+        
+        
+        self.backspaceButton.addGestureRecognizer(deleteAll)
+
+        //self.setUpLabels()
+        
+        self.view.sendSubviewToBack(boardView)
+        
+        /////////// format buttons
+        
+        formatButtons()
+
+        run()
+        
+    
+    }
+    
+    override func prefersStatusBarHidden() -> Bool {
+        return true
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+
+    
+    @IBAction func pausePressed(sender: UIButton) {
+        
+        
+        gameStateBeforePause = gameState
+        gameState = GameState.GamePaused
+        
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewControllerWithIdentifier("MenuController") as! MenuController
+        
+        vc.mainController = self
+        
+        vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
+        
+        self.presentViewController(vc, animated: true, completion: nil)
+  
+        
+    }
+    
+    // MARK: methods
+    
+    func deleteAll(guesture: UILongPressGestureRecognizer) {
+        
+        if (gameState != GameState.GameStarted){return}
+        
+        if guesture.state == UIGestureRecognizerState.Began {
+            let value = wordView.removeAll()
+        
+            addScore(0, energyAdd: -Double(value) , display: true)
+ 
+            
+        }
+    }
+    
+
+    func addFreeLetter(x : CGFloat =  -1, y : CGFloat = -1){
+        
+        let letter = LetterView (boardFrame: boardView.frame)
+        
+        if (x != -1){
+            letter.updateCoordinates(x, y: y, speed: 1.4)
+        }
+        
+        if !letter.isSpecial{
+            letter.addTarget(self, action:   #selector(MainController.letterClicked(_:)),
+                             forControlEvents: .TouchDown)}
+            
+        else{
+            letter.addTarget(self, action: #selector(MainController.specialActivated(_:)),
+                             forControlEvents: .TouchDown)}
+        
+        
+        
+        self.view.addSubview(letter)
+        self.view.bringSubviewToFront(letter)
+        
+        freeLetters.append(letter)
+    }
+    
+
+    
+    func run(){
+        
+        var counter = 0
+        
+        // clean up the game
+        
+        energy = INIT_ENERGY
+        score  = 0
+        timeElapsed = 0
+        gameState = GameState.GameStarted
+        
+        backspaceButton.userInteractionEnabled = true
+        lblScore.text  = "Score:  \(score)"
+        lblEnergy.text = "Energy: \((Int(energy)))"
+        
+        
+        timer.invalidate()
+        
+        
+        wordView.removeAll()
+        
+        lblStatus.hidden = true
+        lblEnergyAdd.hidden = true
+        lblScoreAdd.hidden = true
+        
+        for letter in freeLetters{
+            letter.removeFromSuperview()
+        }
+        freeLetters.removeAll()
+        
+        
+        displayStatus("Welcome", dismiss: true)
+        
+        // end of cleanup
+        
+        
+        for _ in 0..<NUM_CHARS{
+            addFreeLetter()
+        }
+        
+        
+        timer = NSTimer.scheduledTimerWithTimeInterval(TIME_INT, target:self, selector: #selector(MainController.updateState), userInfo: nil, repeats: true)
+        
+        
+        counter += 1
+        
+        
+    }
+    
+    
+    func updateState() {
+        
+        if (gameState != GameState.GameStarted){
+            return
+        }
+        
+        specialClock -= TIME_INT
+        p(specialClock)
+        if (energy <= 0){
+            gameOver()
+            return
+            
+        }
+        
+        
+        timeElapsed += 1
+        addScore(0, energyAdd: (-TIME_CONST - power(timeElapsed) * TIME_MULT) , display: false)
+        //print("\(-TIME_CONST - power(timeElapsed) * TIME_MULT)")
+        
+        if (energy > LOW_ENERGY_MARKER){
+
+            lblEnergy.textColor = defaultTxtColor
+            
+            
+        }
+        else {
+         lblEnergy.textColor = COLOR_PLATE[9 - Int( energy*(9/LOW_ENERGY_MARKER))]
+   
+        }
+        
+        for i in (0..<freeLetters.count).reverse(){
+            
+            let l = freeLetters[i]
+            
+            let (dx, dy) = l.velocity
+            
+            var x = l.center.x + CGFloat(dx)
+            var y = l.center.y + CGFloat(dy)
+            
+            
+            if (l.isAged()){
+                if !CGRectIntersectsRect(boardView.superview!.frame, l.frame){
+                    
+                    l.removeFromSuperview()
+                    freeLetters.removeAtIndex(i)
+                    if (freeLetters.count < NUM_CHARS) || (specialClock > 0){
+                        
+                        addFreeLetter()
+                        
+                    }
+                    
+                    
+                }
+                
+            }
+            else {
+                
+                if (x > boardView.frame.maxX) {
+                    
+                    if (l.incrementAge()){
+                        x = boardView.frame.maxX
+                        l.velocity = (-dx, dy)
+                    }
+                }
+                else if (x < boardView.frame.minX) {
+                    
+                    if (l.incrementAge()){
+                        
+                        x = boardView.frame.minX
+                        l.velocity = (-dx, dy)
+                    }
+                }
+                if (y > boardView.frame.maxY) {
+                    if (l.incrementAge()) {
+                        
+                        y = boardView.frame.maxY
+                        l.velocity = (dx, -dy)
+                    }
+                }
+                else if (y < boardView.frame.minY) {
+                    if (l.incrementAge()){
+                        
+                        y = boardView.frame.minY
+                        l.velocity = (dx, -dy)
+                    }
+                }
+            }
+            l.center = CGPointMake(x, y)
+            l.rotationAngle = l.rotationAngle + l.angularVelocity
+            l.rotate(l.rotationAngle)
+            
+            
+        }
+    }
+    
+    func gameOver(){
+        
+        timer.invalidate()
+        
+        displayStatus("Game Over", dismiss : false)
+        
+        handleHighScore()
+        
+        gameState = GameState.GameOver
+        
+        for letter in freeLetters{
+            letter.removeFromSuperview()
+        }
+        
+        freeLetters.removeAll()
+        
+        backspaceButton.userInteractionEnabled = false
+        
+    
+    }
+    
+    func handleHighScore(){
+        
+        let len = highScores.count
+        if len < 10{
+            var newArray = [Int]()
+            var i = 0
+            while (i < len) && (score < highScores[i]) {
+                newArray.append(highScores[i])
+                i += 1
+            }
+            newArray.append(score)
+            while i < (len){
+                newArray.append(highScores[i])
+                i += 1
+                
+            }
+            
+            defaults.setObject(newArray, forKey: "HighScores")
+            
+            highScores = newArray
+            
+            highScore = highScores[0]
+            
+            
+        }
+        
+        else if score > highScores.last{
+            var newArray = [Int]()
+            var i = 0
+            while(score < highScores[i]){
+                newArray.append(highScores[i])
+                i += 1
+            }
+            newArray.append(score)
+            while i < (9){
+                newArray.append(highScores[i])
+                i += 1
+                
+            }
+            defaults.setObject(newArray, forKey: "HighScores")
+            
+            highScores = newArray
+            
+            highScore = highScores[0]
+        }
+        
+        print("\(highScores)")
+     
+            
+    }
+
+    
+    func displayStatus(status : String, dismiss : Bool = true){
+        
+        
+        lblStatus.hidden = false
+        
+        self.view.bringSubviewToFront(lblStatus)
+        
+        lblStatus.transform = CGAffineTransformMakeScale(0.5, 0.5)
+        self.lblStatus.text = status
+        
+        UIView.animateWithDuration(1, animations: {
+            self.lblStatus.transform = CGAffineTransformMakeScale (1.5, 1.5)
+            }, completion: { (i : Bool) in
+                if (dismiss){self.lblStatus.hidden = true}
+        })
+        
+        
+    }
+
+    
+    func addScore(scoreAdd : Int, energyAdd : Double, display : Bool = false){
+        
+        
+        score  += scoreAdd
+        energy += energyAdd
+        lblScore.text  = "Score:  \(score)"
+        lblEnergy.text = "Energy: \((Int(energy)))"
+        
+        
+        
+        if (!display){
+            return
+        }
+        
+        
+        if(scoreAdd > 0){
+            displayStatus("Score: +\(scoreAdd)", dismiss: true)
+        }
+        else if (energyAdd < 0){
+            displayStatus("Energy: \(Int(energyAdd))", dismiss: true)
+        }
+    }
+    
+    
+    func formatButtons(){
+        backspaceButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Center
+        
+        //buttonBackspace.backgroundColor = UIColor.init(red: 200.0/255.0, green: 0, blue: 200/255.0, alpha: 1)
+        
+        
+        backspaceButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        
+        
+        backspaceButton.layer.cornerRadius = 3.0;
+        
+        backspaceButton.layer.borderWidth = 0.0; //was 2.0
+        backspaceButton.layer.borderColor = UIColor.whiteColor().CGColor
+        
+        //backspaceButton.layer.shadowColor = UIColor(red: 100/255.0, green: 0, blue: 0, alpha: 1).CGColor
+        
+        backspaceButton.layer.shadowOpacity = 1.0
+        backspaceButton.layer.shadowRadius = 0.0 // was 1
+        backspaceButton.layer.shadowOffset = CGSizeMake(0, 3);
+        
+        
+        /// play button
+        
+        //playButton.setTitle("+", forState: UIControlState.Normal)
+        
+        //playButton.backgroundColor = UIColor.init(red: 200.0/255.0, green: 0, blue: 0, alpha: 1)
+        
+        playButton.setBackgroundImage(UIImage(named: "Submit"), forState: .Normal)
+        
+        
+        playButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        
+        
+        playButton.layer.cornerRadius = 3.0;
+        
+        playButton.layer.borderWidth = 0.0;
+        playButton.layer.borderColor = UIColor.whiteColor().CGColor
+        
+        playButton.layer.shadowColor = UIColor.whiteColor().CGColor
+        
+        playButton.layer.shadowOpacity = 1.0
+        playButton.layer.shadowRadius = 1.0
+        playButton.layer.shadowOffset = CGSizeMake(0, 3);
+        
+        
+        playButton.clipsToBounds = true
+        
+        
+    }
+    func getHighScores() -> [Int]{
+        return highScores
+        
+        
+    }
+    
+    func setHighScores(hs : [Int]){
+        highScores = hs
+    }
+    
+    
+    func power(num : Double) -> Double{
+        
+        return pow(num, EXPONENT)
+    }
+
+    
+    func activateSpawner(button: LetterView){
+        
+        let frame = button.frame
+        specialClock = DUR_SPAWNER
+        for _ in freeLetters.count..<SPAWNER_CHARS{
+            addFreeLetter(frame.midX, y: frame.midY)
+        }
+     
+        UIView.animateWithDuration(0.5, animations: {
+            
+            button.addEmitter()
+            button.transform = CGAffineTransformMakeScale(0.1, 0.1)
+            button.backgroundColor = UIColor.blueColor()
+            }, completion: { (i : Bool) in
+                button.removeFromSuperview()
+                
+        })
+        
+    }
+    
+    
+    func sonicBoom(button: LetterView){
+        
+        var toAdd = 0
+        button.removeFromSuperview()
+        
+        for letter in freeLetters{
+            toAdd += letter.letterValue
+            letter.removeFromSuperview()
+        }
+        
+        freeLetters.removeAll()
+        
+        let lettersToSpawn = ((specialClock > 0) ? NUM_CHARS : SPAWNER_CHARS)
+        
+        for _ in 0..<lettersToSpawn{
+            addFreeLetter()
+        }
+    addScore(toAdd, energyAdd: Double(toAdd))
+        
+    }
+
+}
