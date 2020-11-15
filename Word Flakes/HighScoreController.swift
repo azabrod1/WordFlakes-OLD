@@ -2,7 +2,6 @@
 //  HighScoreController.swift
 //  Word Flakes
 //
-//  Created by Tatyana kudryavtseva on 31/07/16.
 //  Copyright © 2016 Organized Chaos. All rights reserved.
 //
 
