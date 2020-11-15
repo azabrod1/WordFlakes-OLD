@@ -60,11 +60,11 @@ class LetterView: UIButton {
         super.init(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
         
         
-        self.userInteractionEnabled = true
+        self.isUserInteractionEnabled = true
         
-        self.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Center
+        self.contentHorizontalAlignment = UIControl.ContentHorizontalAlignment.center
 
-        self.backgroundColor = UIColor.whiteColor()
+        self.backgroundColor = UIColor.white
         
         
         //let image = UIImage(named: "white-marble-2048") as UIImage?
@@ -77,29 +77,29 @@ class LetterView: UIButton {
         
         self.layer.borderWidth = 2
         self.layer.shadowOpacity = 1.0
-        self.layer.shadowOffset = CGSizeMake(0.0, 0.0)
+        self.layer.shadowOffset = cgSizeMake(0.0, 0.0)
         self.layer.shadowRadius = 15.0
        
         self.layer.masksToBounds = false
         
         let path = UIBezierPath(rect: self.bounds)
-        self.layer.shadowPath = path.CGPath
+        self.layer.shadowPath = path.cgPath
         
         
-        setRandom(boardFrame)
+        setRandom(boardFrame:boardFrame)
         
-        letterValue = getCharValue(letter)
+        letterValue = getCharValue(char:letter)
         
-        setPhysics(boardFrame)
+        setPhysics(boardFrame:boardFrame)
         
         if !isSpecial{
         
-        decorate(letter, multiplier: multiplier, value: letterValue)
+            decorate(letter:letter, multiplier: multiplier, value: letterValue)
             
         }
         
         else{
-            decorateSpecial(letter)
+            decorateSpecial(identifier:letter)
             
         }
         
@@ -127,35 +127,35 @@ class LetterView: UIButton {
     
     func rotate(angle : Double){
         
-     self.transform = CGAffineTransformMakeRotation(CGFloat(angle * M_PI_2/90.0))
+        self.transform = CGAffineTransform(rotationAngle:CGFloat(angle * Double.pi/2.0/90.0))
         //pointDisplay.transform = CGAffineTransformMakeRotation(CGFloat(degree * M_PI_2/90.0))
 
     }
     
     func scale(dx: Double, dy: Double){
-        self.transform = CGAffineTransformMakeScale(CGFloat(dx), CGFloat(dy))
+        self.transform = CGAffineTransform(scaleX:CGFloat(dx), y:CGFloat(dy))
     }
     
     func getCharValue(char : String) -> Int{
         
         switch char {
-        case char where "EAIONRTLS".containsString(char):
+        case char where "EAIONRTLS".contains(char):
             return 1
-        case char where "DU".containsString(char):
+        case char where "DU".contains(char):
             return 2
-        case char where "BCMPG".containsString(char):
+        case char where "BCMPG".contains(char):
             return 3
-        case char where "FHWY".containsString(char):
+        case char where "FHWY".contains(char):
             return 4
-        case char where "V".containsString(char):
+        case char where "V".contains(char):
             return 5
-        case char where "K".containsString(char):
+        case char where "K".contains(char):
             return 7
-        case char where "JX".containsString(char):
+        case char where "JX".contains(char):
             return 10
-        case char where "Z".containsString(char):
+        case char where "Z".contains(char):
             return 15
-        case char where "Q".containsString(char):
+        case char where "Q".contains(char):
             return 15
         case char where char == "QU":
             return 7
@@ -198,22 +198,22 @@ class LetterView: UIButton {
         let path = UIBezierPath()
         
         // top left
-        path.moveToPoint(CGPoint(x: radius, y: height))
+        path.move(to:CGPoint(x: radius, y: height))
         
         // top right
-        path.addLineToPoint(CGPoint(x: width - 2*radius, y: height))
+        path.addLine(to:CGPoint(x: width - 2*radius, y: height))
         
         // bottom right + a little extra
-        path.addLineToPoint(CGPoint(x: width - 2*radius, y: height + depth))
+        path.addLine(to:CGPoint(x: width - 2*radius, y: height + depth))
         
         // path to bottom left via curve
-        path.addCurveToPoint(CGPoint(x: radius, y: height + depth),
+        path.addCurve(to:CGPoint(x: radius, y: height + depth),
                              controlPoint1: CGPoint(x: width - curvyness, y: height + lessDepth - curvyness),
                              controlPoint2: CGPoint(x: curvyness, y: height + lessDepth - curvyness))
         
         let layer = view.layer
-        layer.shadowPath = path.CGPath
-        layer.shadowColor = UIColor.blackColor().CGColor
+        layer.shadowPath = path.cgPath
+        layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.3
         layer.shadowRadius = radius
         layer.shadowOffset = CGSize(width: 0, height: -3)
@@ -222,7 +222,7 @@ class LetterView: UIButton {
     func applyPlainShadow(view: UIView) {
         let layer = view.layer
         
-        layer.shadowColor = UIColor.blackColor().CGColor
+        layer.shadowColor = UIColor.black.cgColor
         layer.shadowOffset = CGSize(width: 0, height: 10)
         layer.shadowOpacity = 0.4
         layer.shadowRadius = 5
@@ -251,8 +251,8 @@ class LetterView: UIButton {
         
         // randomize seed - REMOVE IF WANT REPEATABLE random values
         
-        srand(UInt32(time(nil))) //EDIT ME: YOU prob only need do this once in begining
-    
+        //srand(UInt32(time(nil))) //EDIT ME: YOU prob only need do this once in begining
+        arc4random()
         // select random letter
     
         var letterFrequency = [18, 4, 4, 8, 24, 4, 4, 4, 18, 2, 2, 8, 4, 12, 16, 4, 1, 12, 10, 12, 8, 4, 4, 2, 4, 2, 1, 2, 1, 1, 2, 80, 0]
@@ -325,7 +325,7 @@ class LetterView: UIButton {
         
         
         
-        self.frame = CGRectMake(x, y, 40, 40)
+        self.frame = CGRect(x:x, y:y, width:40, height:40)
         
         
     }
@@ -334,36 +334,39 @@ class LetterView: UIButton {
     func decorate(letter: String!, multiplier: Int, value: Int ){
         
         let fontCol = [defaultFontColor,
-                       UIColor(red: 1.0, green: 0.2745, blue: 0, alpha: 1.0),
-                       UIColor.whiteColor(),
-                       UIColor.clearColor(),
-                       UIColor.whiteColor()]
+                       UIColor(red: CGFloat(1.0), green: 0.2745, blue: 0, alpha: 1.0),
+                       UIColor.white,
+                       UIColor.clear,
+                       UIColor.white]
         
-        let col = [UIColor.whiteColor(), UIColor(red: 0.953, green: 0.953, blue: 0.647, alpha: 1.0), UIColor(red: 0.992, green: 0.329, blue: 0.243, alpha: 1.0) , UIColor(red: 0.7686, green: 0.540, blue: 0.8117, alpha: 1.0),  UIColor(red: 0.7686, green: 0.540, blue: 0.8117, alpha: 1.0)]
+        let col = [UIColor.white, UIColor(red: CGFloat(0.953), green: 0.953, blue: 0.647, alpha: 1.0), UIColor(red: 0.992, green: 0.329, blue: 0.243, alpha: 1.0) , UIColor(red: 0.7686, green: 0.540, blue: 0.8117, alpha: 1.0),  UIColor(red: 0.7686, green: 0.540, blue: 0.8117, alpha: 1.0)]
         
-        let borderCol = [UIColor(red: 0.01, green: 0.02, blue: 0.627, alpha: 1.0),
-                         UIColor(red: 0.902, green: 152.0/255.0, blue: 0.2157, alpha: 1.0),
-                         UIColor(red: 150.0/255.0, green: 0.0/255.0, blue: 0.0/255.0, alpha: 1.0),
-                         UIColor.clearColor(),
-                         UIColor(red: 110/255.0, green: 0.02, blue: 170/255.0, alpha: 1.0)]
+        let borderCol = [UIColor(red: CGFloat(0.01), green: CGFloat(0.02), blue: CGFloat(0.627), alpha: CGFloat(1.0)),
+                         UIColor(red: CGFloat(0.902), green: CGFloat(152.0/255.0), blue: CGFloat(0.2157), alpha: CGFloat(1.0)),
+                         UIColor(red: CGFloat(150.0/255.0), green: CGFloat(0.0/255.0), blue: CGFloat(0.0/255.0), alpha: CGFloat(1.0)),
+                         UIColor.clear,
+                         UIColor(red: CGFloat(110.0/255.0), green: CGFloat(0.02), blue: CGFloat(170.0/255.0), alpha: CGFloat(1.0))]
         
-        let shadowCol = [UIColor.whiteColor(),
-                         UIColor(red: 0.98, green: 1, blue: 0.6666, alpha: 1.0),
-                         UIColor(red: 1, green: 0.333, blue: 0.333, alpha: 1.0),
-                         UIColor.clearColor(),
-                         UIColor(red: 0.7686, green: 0.540, blue: 0.8117, alpha: 1.0)]
+        let shadowCol = [UIColor.white,
+                         UIColor(red: CGFloat(0.98), green: CGFloat(1), blue: CGFloat(0.6666), alpha: CGFloat(1.0)),
+                         UIColor(red: CGFloat(1), green: CGFloat(0.333), blue: CGFloat(0.333), alpha: CGFloat(1.0)),
+                         UIColor.clear,
+                         UIColor(red: CGFloat(0.7686), green: CGFloat(0.540), blue: CGFloat(0.8117), alpha: CGFloat(1.0))]
         
         let fontSize = [CGFloat(23), CGFloat(23),CGFloat(17), CGFloat(15)] //Font size depends on how many characters the tile has (Usually 1)
         
         
-        let attrs1 : [String: AnyObject] = [NSFontAttributeName: UIFont(name: "HelveticaNeue-Bold", size: fontSize[letter.characters.count])!, NSForegroundColorAttributeName: fontCol[multiplier-1]]
+        let attrs1 : [String: AnyObject] = [NSFontAttributeName:
+            UIFont(name: "HelveticaNeue-Bold", size: fontSize[letter.characters.count])!, NSForegroundColorAttributeName: fontCol[multiplier-1]]
         
         let attributedText = NSMutableAttributedString(string:letter, attributes: attrs1)
         
         let valueString = "\(value)"
         
         
-        let attrs2 : [String: AnyObject] = [NSFontAttributeName: UIFont(name: "HelveticaNeue-Bold", size: 10)!, NSBaselineOffsetAttributeName: -5, NSForegroundColorAttributeName: fontCol[multiplier-1]]
+        let attrs2 : [String: AnyObject] =
+            [NSFontAttributeName:
+                UIFont(name: "HelveticaNeue-Bold", size: 10)!, NSBaselineOffsetAttributeName: -5, NSForegroundColorAttributeName: fontCol[multiplier-1]]
         
         
         attributedText.appendAttributedString(NSAttributedString(string: valueString, attributes: attrs2))
@@ -371,8 +374,8 @@ class LetterView: UIButton {
         
 
         self.backgroundColor = col[multiplier-1]
-        self.layer.borderColor = borderCol[multiplier - 1].CGColor
-        self.layer.shadowColor = shadowCol[multiplier-1].CGColor
+        self.layer.borderColor = borderCol[multiplier - 1].cgColor
+        self.layer.shadowColor = shadowCol[multiplier-1].cgColor
         self.setAttributedTitle(attributedText, forState: UIControlState.Normal)
         
 
@@ -412,12 +415,12 @@ class LetterView: UIButton {
         
          
          let emitter = CAEmitterLayer()
-         emitter.emitterPosition = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2)
+        emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
          emitter.emitterSize = self.bounds.size
          emitter.emitterMode = kCAEmitterLayerAdditive
         
         
-         emitter.emitterShape = kCAEmitterLayerRectangle
+         emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
         
         
          self.layer.addSublayer(emitter)
@@ -431,7 +434,7 @@ class LetterView: UIButton {
          let emitterCell = CAEmitterCell()
          
          //4
-         emitterCell.contents = texture!.CGImage
+         emitterCell.contents = texture!.cgImage
          
          //5
          emitterCell.name = "cell"
@@ -473,7 +476,7 @@ class LetterView: UIButton {
          //10
         
         
-        emitterCell.emissionRange = CGFloat(2*M_PI)
+        emitterCell.emissionRange = CGFloat(2 * Double.pi)
          
          //11
          emitter.emitterCells = [emitterCell]
@@ -484,7 +487,7 @@ class LetterView: UIButton {
     
     func updateCoordinates(x : CGFloat, y : CGFloat, speed : Double){
         
-        self.frame = CGRectMake(x, y, 40, 40)
+        self.frame = CGRect(x:x, y:y, width:40, height:40)
         
         velocity.x *= speed
         velocity.y *= speed
@@ -493,16 +496,16 @@ class LetterView: UIButton {
     
     func decorateSpecial(identifier: String! ){
         if identifier == "*"{
-            self.backgroundColor = UIColor.clearColor()
+            self.backgroundColor = UIColor.clear
             
             //self.layer.borderColor = UIColor.cyanColor().CGColor
            // self.layer.shadowColor = UIColor.blueColor().CGColor
             self.layer.borderWidth = 0
             let image = UIImage(named: "BriefCase") as UIImage?
             
-            self.setImage(image, forState: .Normal)
+            self.setImage(image, for: .normal)
 
-            self.transform = CGAffineTransformMakeScale(0.67, 0.82)
+            self.transform = CGAffineTransform(scaleX:0.67, y:0.82)
             
             
             
@@ -510,13 +513,13 @@ class LetterView: UIButton {
         }
         
         if identifier == "BOOM"{
-            self.backgroundColor = UIColor.clearColor()
+            self.backgroundColor = UIColor.clear
             self.layer.borderWidth = 0
             let image = UIImage(named: "bomb") as UIImage?
             
-            self.setImage(image, forState: .Normal)
+            self.setImage(image, forState: .normal)
             
-            self.transform = CGAffineTransformMakeScale(0.67, 0.82)
+            self.transform = CGAffineTransform(scaleX:0.67, y:0.82)
             
             self.addFireEmitter()
 
@@ -533,12 +536,12 @@ class LetterView: UIButton {
         
   
         let emitter = CAEmitterLayer()
-        emitter.emitterPosition = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2)
+        emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = CGSize(width: 1.0, height: 1.0)
         emitter.emitterMode = kCAEmitterLayerAdditive
         
         
-        emitter.emitterShape = kCAEmitterLayerRectangle
+        emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
         
         
         
@@ -555,7 +558,7 @@ class LetterView: UIButton {
     
         
         //4
-        emitterCell.contents = texture!.CGImage
+        emitterCell.contents = texture!.cgImage
         
         //5
         emitterCell.name = "cell"
@@ -564,7 +567,7 @@ class LetterView: UIButton {
         emitterCell.birthRate = 2000
         emitterCell.lifetime = 1
         
-        emitterCell.color = UIColor.redColor().CGColor
+        emitterCell.color = UIColor.red.cgColor
         
         //7
         //emitterCell.blueRange = 0.33
@@ -599,7 +602,7 @@ class LetterView: UIButton {
         //10
         
         
-        emitterCell.emissionRange = CGFloat(2*M_PI)
+        emitterCell.emissionRange = CGFloat(2 * Double.pi)
         
         //11
         emitter.emitterCells = [emitterCell]

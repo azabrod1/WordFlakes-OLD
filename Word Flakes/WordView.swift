@@ -55,15 +55,15 @@ class WordView: UIView {
             self.tileRack.removeAll() // destroy it before the animation, so can add letters while anim runs
             self.strWord = ""
             
-            UIView.animateWithDuration(3, animations: {
+            UIView.animate(withDuration:3, animations: {
                 // animation starts
                 for letter in temp {
                     
                     letter.addEmitter()
                     letter.frame.offsetInPlace(dx: (self.superview?.frame.width)!/2,
                         dy: (-(self.superview?.frame.height)!-2*letter.frame.height))
-                    letter.transform = CGAffineTransformMakeScale(0.8, 0.8)
-                    letter.setTitle("", forState: UIControlState.Normal)
+                    letter.transform = CGAffineTransform(scaleX:0.8, y:0.8)
+                    letter.setTitle("", forState: UIControl.State.normal)
                 }
                 
                 // animation ends
@@ -88,8 +88,8 @@ class WordView: UIView {
                 animation.repeatCount = 4
                 animation.autoreverses = true
                 
-                animation.fromValue = NSValue(CGPoint: CGPointMake(l.center.x, l.center.y - 5))
-                animation.toValue = NSValue(CGPoint: CGPointMake(l.center.x, l.center.y + 5))
+                animation.fromValue = NSValue(cgPoint: CGPoint(x:l.center.x, y:l.center.y - 5))
+                animation.toValue = NSValue(cgPoint: CGPoint(x:l.center.x, y:l.center.y + 5))
                 l.layer.addAnimation(animation, forKey: "position")
             }
         }
@@ -124,7 +124,7 @@ class WordView: UIView {
             return false
         }
         
-        dictionary = Set(text.componentsSeparatedByString("\n"))
+        dictionary = Set(text.components(separatedBy:"\n"))
         
         
         return true
@@ -148,7 +148,7 @@ class WordView: UIView {
         x = 15 + (w + 3) * min(7, CGFloat(count))
         
         
-        UIView.animateWithDuration(1, animations: {
+        UIView.animate(withDuration:1, animations: {
             
             
             if (count >= 8){

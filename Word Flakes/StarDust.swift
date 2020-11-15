@@ -8,10 +8,10 @@ class StardustView:UIView {
         
         //initialize the emitter
         emitter = self.layer as! CAEmitterLayer
-        emitter.emitterPosition = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2)
+        emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = self.bounds.size
         emitter.emitterMode = kCAEmitterLayerAdditive
-        emitter.emitterShape = kCAEmitterLayerRectangle
+        emitter.emitterShape = kCAEmitterLayerEmitterShape.rectangle
 
     }
     
@@ -19,13 +19,13 @@ class StardustView:UIView {
         super.init(frame:frame)
         //initialize the emitter
         emitter = self.layer as! CAEmitterLayer
-        emitter.emitterPosition = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2)
+        emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = self.bounds.size
         emitter.emitterMode = kCAEmitterLayerAdditive
         emitter.emitterShape = kCAEmitterLayerRectangle
     }
     
-    override class func layerClass() -> AnyClass {
+    /*override*/ class func layerClass() -> AnyClass {
         //configure the UIView to have emitter layer
         return CAEmitterLayer.self
     }
@@ -42,7 +42,7 @@ class StardustView:UIView {
         
         //create new emitter cell
         let emitterCell = CAEmitterCell()
-        emitterCell.contents = texture!.CGImage
+        emitterCell.contents = texture!.cgImage
         emitterCell.name = "cell"
         emitterCell.birthRate = 200
         emitterCell.lifetime = 1.5
@@ -54,7 +54,7 @@ class StardustView:UIView {
         emitterCell.velocityRange = 40
         emitterCell.scaleRange = 0.5
         emitterCell.scaleSpeed = -0.2
-        emitterCell.emissionRange = CGFloat(M_PI*2)
+        emitterCell.emissionRange = CGFloat(Double.pi * 2)
         
         let emitter = self.layer as! CAEmitterLayer
         emitter.emitterCells = [emitterCell]
