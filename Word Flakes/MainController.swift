@@ -51,7 +51,7 @@ class MainController: UIViewController {
     let NUM_CHARS  : Int    = 5
     let SPAWNER_CHARS: Int  = 10
     
-    let defaults = NSUserDefaults.standardUserDefaults()
+    let defaults = UserDefaults.standard
     
  
 // MARK: properties
@@ -60,7 +60,7 @@ class MainController: UIViewController {
     var gameState : GameState!
     var gameStateBeforePause : GameState!
     private var highScores = [Int]()
-    private var timer      = NSTimer()
+    private var timer      = Timer()
     
     private var energy      : Double = 0.0
     private var timeElapsed : Double = 0
@@ -76,7 +76,7 @@ class MainController: UIViewController {
         
         let value = wordView.removeLastLetter()
         
-        addScore(0, energyAdd: -Double(value) , display: true)
+        addScore(scoreAdd:0, energyAdd: -Double(value) , display: true)
        
     }
     
@@ -93,33 +93,33 @@ class MainController: UIViewController {
         let toAdd = wordView.submitWord()
         
         if (toAdd != 0){
-            addScore(toAdd, energyAdd: Double(toAdd ), display: true)
+            addScore(scoreAdd:toAdd, energyAdd: Double(toAdd ), display: true)
         }
         
     }
         
     /*This function identifies the Special Tile and calls approapreite method(s) associated with
    that tile */
-    
-    func specialActivated(tile : LetterView){
+    @objc
+    func specialActivated(_ tile : LetterView){
         
         if (gameState != GameState.GameStarted) {return}
         
         freeLetters = freeLetters.filter({ $0 != tile })
         
         if tile.letter == "*"{
-            activateSpawner(tile)
+            activateSpawner(button:tile)
         }
         
         if tile.letter == "BOOM"{
-            sonicBoom(tile)
+            sonicBoom(button:tile)
         }
     
         
     }
     
-    
-    func letterClicked(button : LetterView){
+    @objc
+    func letterClicked(_ button : LetterView){
         
         
         if (gameState != GameState.GameStarted){return}
@@ -131,11 +131,11 @@ class MainController: UIViewController {
         
         
         if (button.letter == "?"){
-            button.decorate("A", multiplier:  button.multiplier, value: button.letterValue)
+            button.decorate(letter:"A", multiplier:  button.multiplier, value: button.letterValue)
         }
         
         
-        wordView.addLetter(button)
+        wordView.addLetter(button:button)
         
         
         if (freeLetters.count < NUM_CHARS) || (specialClock > 0){
@@ -159,7 +159,8 @@ class MainController: UIViewController {
         
         super.viewDidLoad()
         
-        let deleteAll = UILongPressGestureRecognizer(target: self, action: #selector(deleteAll(_:)))
+        let deleteAll = UILongPressGestureRecognizer(target: self,
+                    action: #selector(deleteAll(_:)))
         deleteAll.minimumPressDuration = 0.25
         
         
@@ -178,7 +179,7 @@ class MainController: UIViewController {
     
     }
     
-    override func prefersStatusBarHidden() -> Bool {
+    override var prefersStatusBarHidden: Bool {
         return true
     }
     
@@ -196,27 +197,27 @@ class MainController: UIViewController {
         
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateViewControllerWithIdentifier("MenuController") as! MenuController
+        let vc = storyboard.instantiateViewController(withIdentifier:"MenuController") as! MenuController
         
         vc.mainController = self
         
-        vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
+        vc.modalTransitionStyle = UIModalTransitionStyle.flipHorizontal
         
-        self.presentViewController(vc, animated: true, completion: nil)
+        self.present(vc, animated: true, completion: nil)
   
         
     }
     
     // MARK: methods
-    
-    func deleteAll(guesture: UILongPressGestureRecognizer) {
+    @objc
+    func deleteAll(_ guesture: UILongPressGestureRecognizer) {
         
         if (gameState != GameState.GameStarted){return}
         
-        if guesture.state == UIGestureRecognizerState.Began {
+        if guesture.state == UIGestureRecognizer.State.began {
             let value = wordView.removeAll()
         
-            addScore(0, energyAdd: -Double(value) , display: true)
+            addScore(scoreAdd:0, energyAdd: -Double(value) , display: true)
  
             
         }
@@ -228,16 +229,16 @@ class MainController: UIViewController {
         let letter = LetterView (boardFrame: boardView.frame)
         
         if (x != -1){
-            letter.updateCoordinates(x, y: y, speed: 1.4)
+            letter.updateCoordinates(x:x, y: y, speed: 1.4)
         }
         
         if !letter.isSpecial{
             letter.addTarget(self, action:   #selector(MainController.letterClicked(_:)),
-                             forControlEvents: .TouchDown)}
+                             for: .touchDown)}
             
         else{
             letter.addTarget(self, action: #selector(MainController.specialActivated(_:)),
-                             forControlEvents: .TouchDown)}
+                             for: .touchDown)}
         
         
         
@@ -260,7 +261,7 @@ class MainController: UIViewController {
         timeElapsed = 0
         gameState = GameState.GameStarted
         
-        backspaceButton.userInteractionEnabled = true
+        backspaceButton.isUserInteractionEnabled = true
         lblScore.text  = "Score:  \(score)"
         lblEnergy.text = "Energy: \((Int(energy)))"
         
@@ -270,9 +271,9 @@ class MainController: UIViewController {
         
         wordView.removeAll()
         
-        lblStatus.hidden = true
-        lblEnergyAdd.hidden = true
-        lblScoreAdd.hidden = true
+        lblStatus.isHidden = true
+        lblEnergyAdd.isHidden = true
+        lblScoreAdd.isHidden = true
         
         for letter in freeLetters{
             letter.removeFromSuperview()
@@ -280,7 +281,7 @@ class MainController: UIViewController {
         freeLetters.removeAll()
         
         
-        displayStatus("Welcome", dismiss: true)
+        displayStatus(status:"Welcome", dismiss: true)
         
         // end of cleanup
         
@@ -290,7 +291,9 @@ class MainController: UIViewController {
         }
         
         
-        timer = NSTimer.scheduledTimerWithTimeInterval(TIME_INT, target:self, selector: #selector(MainController.updateState), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval:TIME_INT, target:self, selector:
+            #selector(MainController.updateState),
+            userInfo: nil, repeats: true)
         
         
         counter += 1
@@ -306,7 +309,7 @@ class MainController: UIViewController {
         }
         
         specialClock -= TIME_INT
-        p(specialClock)
+        p(toPrint:specialClock)
         if (energy <= 0){
             gameOver()
             return
@@ -315,7 +318,7 @@ class MainController: UIViewController {
         
         
         timeElapsed += 1
-        addScore(0, energyAdd: (-TIME_CONST - power(timeElapsed) * TIME_MULT) , display: false)
+        addScore(scoreAdd:0, energyAdd:(-TIME_CONST - power(num:timeElapsed) * TIME_MULT),display: false)
         //print("\(-TIME_CONST - power(timeElapsed) * TIME_MULT)")
         
         if (energy > LOW_ENERGY_MARKER){
@@ -329,7 +332,7 @@ class MainController: UIViewController {
    
         }
         
-        for i in (0..<freeLetters.count).reverse(){
+        for i in (0..<freeLetters.count).reversed(){
             
             let l = freeLetters[i]
             
@@ -340,8 +343,9 @@ class MainController: UIViewController {
             
             
             if (l.isAged()){
-                if !CGRectIntersectsRect(boardView.superview!.frame, l.frame){
-                    
+                if !boardView.superview!.frame.intersects(l.frame){
+                //CGRect.intersects(boardView.superview!.frame, l.frame){
+        
                     l.removeFromSuperview()
                     freeLetters.removeAtIndex(i)
                     if (freeLetters.count < NUM_CHARS) || (specialClock > 0){
@@ -386,9 +390,9 @@ class MainController: UIViewController {
                     }
                 }
             }
-            l.center = CGPointMake(x, y)
+            l.center = CGPoint(x:x, y:y)
             l.rotationAngle = l.rotationAngle + l.angularVelocity
-            l.rotate(l.rotationAngle)
+            l.rotate(angle:l.rotationAngle)
             
             
         }
@@ -398,7 +402,7 @@ class MainController: UIViewController {
         
         timer.invalidate()
         
-        displayStatus("Game Over", dismiss : false)
+        displayStatus(status:"Game Over", dismiss : false)
         
         handleHighScore()
         
@@ -410,7 +414,7 @@ class MainController: UIViewController {
         
         freeLetters.removeAll()
         
-        backspaceButton.userInteractionEnabled = false
+        backspaceButton.isUserInteractionEnabled = false
         
     
     }
@@ -432,7 +436,7 @@ class MainController: UIViewController {
                 
             }
             
-            defaults.setObject(newArray, forKey: "HighScores")
+            defaults.set(newArray,forKey: "HighScores")
             
             highScores = newArray
             
@@ -441,7 +445,7 @@ class MainController: UIViewController {
             
         }
         
-        else if score > highScores.last{
+        else if score > highScores.last!{
             var newArray = [Int]()
             var i = 0
             while(score < highScores[i]){
@@ -454,7 +458,7 @@ class MainController: UIViewController {
                 i += 1
                 
             }
-            defaults.setObject(newArray, forKey: "HighScores")
+            defaults.set(newArray, forKey: "HighScores")
             
             highScores = newArray
             
@@ -470,17 +474,17 @@ class MainController: UIViewController {
     func displayStatus(status : String, dismiss : Bool = true){
         
         
-        lblStatus.hidden = false
+        lblStatus.isHidden = false
         
         self.view.bringSubviewToFront(lblStatus)
         
-        lblStatus.transform = CGAffineTransformMakeScale(0.5, 0.5)
+        lblStatus.transform = CGAffineTransform(scaleX:0.5, y:0.5)
         self.lblStatus.text = status
         
-        UIView.animateWithDuration(1, animations: {
-            self.lblStatus.transform = CGAffineTransformMakeScale (1.5, 1.5)
+        UIView.animate(withDuration:1, animations: {
+            self.lblStatus.transform = CGAffineTransform (scaleX:1.5, y:1.5)
             }, completion: { (i : Bool) in
-                if (dismiss){self.lblStatus.hidden = true}
+                if (dismiss){self.lblStatus.isHidden = true}
         })
         
         
@@ -503,33 +507,33 @@ class MainController: UIViewController {
         
         
         if(scoreAdd > 0){
-            displayStatus("Score: +\(scoreAdd)", dismiss: true)
+            displayStatus(status:"Score: +\(scoreAdd)", dismiss: true)
         }
         else if (energyAdd < 0){
-            displayStatus("Energy: \(Int(energyAdd))", dismiss: true)
+            displayStatus(status:"Energy: \(Int(energyAdd))", dismiss: true)
         }
     }
     
     
     func formatButtons(){
-        backspaceButton.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Center
+        backspaceButton.contentHorizontalAlignment = UIControl.ContentHorizontalAlignment.center
         
         //buttonBackspace.backgroundColor = UIColor.init(red: 200.0/255.0, green: 0, blue: 200/255.0, alpha: 1)
         
         
-        backspaceButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        backspaceButton.setTitleColor(UIColor.white, for: UIControl.State.normal)
         
         
         backspaceButton.layer.cornerRadius = 3.0;
         
         backspaceButton.layer.borderWidth = 0.0; //was 2.0
-        backspaceButton.layer.borderColor = UIColor.whiteColor().CGColor
+        backspaceButton.layer.borderColor = UIColor.white.cgColor
         
         //backspaceButton.layer.shadowColor = UIColor(red: 100/255.0, green: 0, blue: 0, alpha: 1).CGColor
         
         backspaceButton.layer.shadowOpacity = 1.0
         backspaceButton.layer.shadowRadius = 0.0 // was 1
-        backspaceButton.layer.shadowOffset = CGSizeMake(0, 3);
+        backspaceButton.layer.shadowOffset = CGSize(width:0, height:3);
         
         
         /// play button
@@ -538,22 +542,22 @@ class MainController: UIViewController {
         
         //playButton.backgroundColor = UIColor.init(red: 200.0/255.0, green: 0, blue: 0, alpha: 1)
         
-        playButton.setBackgroundImage(UIImage(named: "Submit"), forState: .Normal)
+        playButton.setBackgroundImage(UIImage(named: "Submit"), for: .normal)
         
         
-        playButton.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Normal)
+        playButton.setTitleColor(UIColor.white, for: UIControl.State.normal)
         
         
         playButton.layer.cornerRadius = 3.0;
         
         playButton.layer.borderWidth = 0.0;
-        playButton.layer.borderColor = UIColor.whiteColor().CGColor
+        playButton.layer.borderColor = UIColor.white.cgColor
         
-        playButton.layer.shadowColor = UIColor.whiteColor().CGColor
+        playButton.layer.shadowColor = UIColor.white.cgColor
         
         playButton.layer.shadowOpacity = 1.0
         playButton.layer.shadowRadius = 1.0
-        playButton.layer.shadowOffset = CGSizeMake(0, 3);
+        playButton.layer.shadowOffset = CGSize(width:0, height:3);
         
         
         playButton.clipsToBounds = true
@@ -582,14 +586,14 @@ class MainController: UIViewController {
         let frame = button.frame
         specialClock = DUR_SPAWNER
         for _ in freeLetters.count..<SPAWNER_CHARS{
-            addFreeLetter(frame.midX, y: frame.midY)
+            addFreeLetter(x:frame.midX, y: frame.midY)
         }
      
-        UIView.animateWithDuration(0.5, animations: {
+        UIView.animate(withDuration:0.5, animations: {
             
             button.addEmitter()
-            button.transform = CGAffineTransformMakeScale(0.1, 0.1)
-            button.backgroundColor = UIColor.blueColor()
+            button.transform = CGAffineTransform(scaleX:0.1, y:0.1)
+            button.backgroundColor = UIColor.blue
             }, completion: { (i : Bool) in
                 button.removeFromSuperview()
                 
@@ -615,7 +619,7 @@ class MainController: UIViewController {
         for _ in 0..<lettersToSpawn{
             addFreeLetter()
         }
-    addScore(toAdd, energyAdd: Double(toAdd))
+        addScore(scoreAdd:toAdd, energyAdd: Double(toAdd))
         
     }
 

@@ -77,7 +77,7 @@ class LetterView: UIButton {
         
         self.layer.borderWidth = 2
         self.layer.shadowOpacity = 1.0
-        self.layer.shadowOffset = cgSizeMake(0.0, 0.0)
+        self.layer.shadowOffset = cgSize(width:0.0, height:0.0)
         self.layer.shadowRadius = 15.0
        
         self.layer.masksToBounds = false
@@ -417,7 +417,8 @@ class LetterView: UIButton {
          let emitter = CAEmitterLayer()
         emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
          emitter.emitterSize = self.bounds.size
-         emitter.emitterMode = kCAEmitterLayerAdditive
+        emitter.emitterMode = CAEmitterLayerEmitterMode.outline
+        //emitter.emitterMode = kCAEmitterLayerAdditive
         
         
          emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
@@ -517,7 +518,7 @@ class LetterView: UIButton {
             self.layer.borderWidth = 0
             let image = UIImage(named: "bomb") as UIImage?
             
-            self.setImage(image, forState: .normal)
+            self.setImage(image, for: .normal)
             
             self.transform = CGAffineTransform(scaleX:0.67, y:0.82)
             
@@ -538,8 +539,8 @@ class LetterView: UIButton {
         let emitter = CAEmitterLayer()
         emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = CGSize(width: 1.0, height: 1.0)
-        emitter.emitterMode = kCAEmitterLayerAdditive
-        
+        //emitter.emitterMode = kCAEmitterLayerAdditive
+        emitter.emitterMode = CAEmitterLayerEmitterMode.outline
         
         emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
         

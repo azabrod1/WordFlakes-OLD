@@ -10,9 +10,8 @@ class StardustView:UIView {
         emitter = self.layer as! CAEmitterLayer
         emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = self.bounds.size
-        emitter.emitterMode = kCAEmitterLayerAdditive
-        emitter.emitterShape = kCAEmitterLayerEmitterShape.rectangle
-
+        emitter.emitterMode = CAEmitterLayerEmitterMode.outline
+        emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
     }
     
     override init(frame:CGRect) {
@@ -21,8 +20,8 @@ class StardustView:UIView {
         emitter = self.layer as! CAEmitterLayer
         emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = self.bounds.size
-        emitter.emitterMode = kCAEmitterLayerAdditive
-        emitter.emitterShape = kCAEmitterLayerRectangle
+        emitter.emitterMode = CAEmitterLayerEmitterMode.outline
+        emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
     }
     
     /*override*/ class func layerClass() -> AnyClass {

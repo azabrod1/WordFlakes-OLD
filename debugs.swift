@@ -15,7 +15,7 @@ func p<T>(toPrint : T, description : String? = nil ){
     }
         
     else{
-        print("\(String(description)):  \(toPrint)")
+        print("\(String(description!)):  \(toPrint)")
         
     }
 }

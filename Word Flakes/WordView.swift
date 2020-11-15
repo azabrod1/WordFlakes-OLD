@@ -42,7 +42,7 @@ class WordView: UIView {
         
         print("Number of letters: \(temp.count)")
         
-        if dictionary.contains(strWord) && strWord.characters.count > 3 {
+        if dictionary.contains(strWord) && strWord.count > 3 {
             
             for letter in self.tileRack{
                 rackScore += letter.letterValue
@@ -51,7 +51,7 @@ class WordView: UIView {
                 
             }
             rackScore *= multiplier
-            rackScore += lengthBonus[strWord.characters.count]
+            rackScore += lengthBonus[strWord.count]
             self.tileRack.removeAll() // destroy it before the animation, so can add letters while anim runs
             self.strWord = ""
             
@@ -60,10 +60,10 @@ class WordView: UIView {
                 for letter in temp {
                     
                     letter.addEmitter()
-                    letter.frame.offsetInPlace(dx: (self.superview?.frame.width)!/2,
+                    letter.frame.offsetBy(dx: (self.superview?.frame.width)!/2,
                         dy: (-(self.superview?.frame.height)!-2*letter.frame.height))
                     letter.transform = CGAffineTransform(scaleX:0.8, y:0.8)
-                    letter.setTitle("", forState: UIControl.State.normal)
+                    letter.setTitle("", for: UIControl.State.normal)
                 }
                 
                 // animation ends
@@ -90,7 +90,7 @@ class WordView: UIView {
                 
                 animation.fromValue = NSValue(cgPoint: CGPoint(x:l.center.x, y:l.center.y - 5))
                 animation.toValue = NSValue(cgPoint: CGPoint(x:l.center.x, y:l.center.y + 5))
-                l.layer.addAnimation(animation, forKey: "position")
+                l.layer.add(animation, forKey: "position")
             }
         }
         
@@ -100,18 +100,19 @@ class WordView: UIView {
     
     func linesFromResource(fileName: String) throws -> [String] {
         
-        guard let path = NSBundle.mainBundle().pathForResource(fileName, ofType: nil) else {
+        guard let path = Bundle.main.path(forResource:fileName, ofType: nil) else {
+        
             throw NSError(domain: NSCocoaErrorDomain, code: NSFileNoSuchFileError, userInfo: [ NSFilePathErrorKey : fileName ])
         }
-        let content = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
-        return content.componentsSeparatedByString("\n")
+        let content = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
+        return content.components(separatedBy:"\n")
     }
     
     
     func loadDictionary() -> Bool{
         
-        let fileLocation  = NSBundle.mainBundle().pathForResource("wordList", ofType: "txt")!
-        
+        //let fileLocation  = NSBundle.mainBundle().pathForResource("wordList", ofType: "txt")!
+        let fileLocation = Bundle.main.path(forResource: "wordList", ofType: "txt")!
         
         let text : String
         
@@ -154,12 +155,12 @@ class WordView: UIView {
             if (count >= 8){
                 
                 for l in self.tileRack {
-                    l.frame.offsetInPlace(dx: -(l.frame.width  + 3.0), dy: 0)
+                    l.frame.offsetBy(dx: -(l.frame.width  + 3.0), dy: 0)
                 }
             }
             self.tileRack.append(button)
             
-            button.transform = CGAffineTransformMakeScale(0.8, 0.8)
+            button.transform = CGAffineTransform(scaleX:0.8, y:0.8)
             
             button.frame = CGRect(x: x, y: (button.superview?.frame.maxY)! - 40 , width: button.frame.width , height: button.frame.height )
             button.layer.shadowOpacity = 0.3
@@ -203,12 +204,12 @@ class WordView: UIView {
         let letter = tileRack.removeLast() as LetterView
         
         
-        UIView.animateWithDuration(1, animations: {
+        UIView.animate(withDuration:1, animations: {
             
             // animation starts
-            letter.frame.offsetInPlace(dx: 0, dy: 50)
+            letter.frame.offsetBy(dx: 0, dy: 50)
             
-            letter.backgroundColor = UIColor.clearColor()
+            letter.backgroundColor = UIColor.clear
             
             //animation ends
             }, completion: {(i : Bool) in
@@ -216,7 +217,7 @@ class WordView: UIView {
                 
                 letter.removeFromSuperview()
                 
-                letter.hidden = true
+                letter.isHidden = true
                 
                 self.strWord = ""
                 
@@ -227,7 +228,7 @@ class WordView: UIView {
                 
                 if (self.tileRack.count >= 8){
                     for l in self.tileRack {
-                        l.frame.offsetInPlace(dx: +(l.frame.width  + 3.0), dy: 0)
+                        l.frame.offsetBy(dx: +(l.frame.width  + 3.0), dy: 0)
                     }
                 }
                 
@@ -247,14 +248,14 @@ class WordView: UIView {
         
         let score = tileRack.count
         
-        UIView.animateWithDuration(1, animations: {
+        UIView.animate(withDuration:1, animations: {
             
             for letter in self.tileRack{
                
             // animation starts
-                letter.frame.offsetInPlace(dx: 0, dy: 50)
+                letter.frame.offsetBy(dx: 0, dy: 50)
             
-                letter.backgroundColor = UIColor.clearColor()
+                letter.backgroundColor = UIColor.clear
             }
             
             //animation ends
@@ -262,7 +263,7 @@ class WordView: UIView {
                 // after animation
                 for letter in self.tileRack{
                     letter.removeFromSuperview()
-                    letter.hidden = true
+                    letter.isHidden = true
                 }
                 
                 self.strWord = ""
@@ -280,7 +281,7 @@ class WordView: UIView {
     
     func isWord() -> Bool{
         
-        if(dictionary.contains(strWord) && strWord.characters.count > 2){
+        if(dictionary.contains(strWord) && strWord.count > 2){
             
             return true
         }

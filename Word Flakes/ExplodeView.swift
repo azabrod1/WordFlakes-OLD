@@ -21,23 +21,21 @@ class ExplodeView: UIView {
     
     private var emitter:CAEmitterLayer!
     
-    //2 configure the UIView to have an emitter layer
-    override class func layerClass() -> AnyClass {
-        print("In emitter class")
-        
+ 
+    override class var layerClass: AnyClass {
         return CAEmitterLayer.self
     }
-    
     
     required init(coder aDecoder:NSCoder) {
         super.init(coder: aDecoder)!
         
         
         emitter = self.layer as! CAEmitterLayer
-        emitter.emitterPosition = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2)
+        emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = self.bounds.size
-        emitter.emitterMode = kCAEmitterLayerAdditive
-        emitter.emitterShape = kCAEmitterLayerRectangle
+        //emitter.emitterMode = CAEmitterLayerRenderMode.additive
+        emitter.emitterMode = CAEmitterLayerEmitterMode.outline
+        emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
     }
     
     override init(frame:CGRect) {
@@ -45,13 +43,14 @@ class ExplodeView: UIView {
         
         //initialize the emitter
         emitter = self.layer as! CAEmitterLayer
-        emitter.emitterPosition = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2)
+        emitter.emitterPosition = CGPoint(x:self.bounds.size.width/2, y:self.bounds.size.height/2)
         emitter.emitterSize = self.bounds.size
-        emitter.emitterMode = kCAEmitterLayerAdditive
-        emitter.emitterShape = kCAEmitterLayerRectangle
+        //emitter.emitterMode = kCAEmitterLayerAdditive
+        emitter.emitterMode = CAEmitterLayerEmitterMode.outline
+        emitter.emitterShape = CAEmitterLayerEmitterShape.rectangle
         
         
-        emitter.hidden = false
+        emitter.isHidden = false
        
         
     }
@@ -74,7 +73,7 @@ class ExplodeView: UIView {
         let emitterCell = CAEmitterCell()
         
         //4
-        emitterCell.contents = texture!.CGImage
+        emitterCell.contents = texture!.cgImage
         
         //5
         emitterCell.name = "cell"
@@ -96,7 +95,7 @@ class ExplodeView: UIView {
         emitterCell.scaleSpeed = -0.2
         
         //10
-        emitterCell.emissionRange = CGFloat(M_PI*2)
+        emitterCell.emissionRange = CGFloat(Double.pi * 2)
         
         //11
         emitter.emitterCells = [emitterCell]
