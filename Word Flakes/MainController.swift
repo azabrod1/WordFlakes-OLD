@@ -150,7 +150,7 @@ class MainController: UIViewController {
     override func viewDidLoad() {
        
         
-        highScores = defaults.objectForKey("HighScores") as? [Int] ?? [Int]()
+        highScores = defaults.object(forKey: "HighScores") as? [Int] ?? [Int]()
         
         if !(highScores.isEmpty){
             highScore = highScores[0]
@@ -269,7 +269,7 @@ class MainController: UIViewController {
         timer.invalidate()
         
         
-        wordView.removeAll()
+        _ = wordView.removeAll()
         
         lblStatus.isHidden = true
         lblEnergyAdd.isHidden = true
@@ -301,7 +301,7 @@ class MainController: UIViewController {
         
     }
     
-    
+    @objc
     func updateState() {
         
         if (gameState != GameState.GameStarted){
@@ -347,7 +347,7 @@ class MainController: UIViewController {
                 //CGRect.intersects(boardView.superview!.frame, l.frame){
         
                     l.removeFromSuperview()
-                    freeLetters.removeAtIndex(i)
+                    freeLetters.remove(at: i)
                     if (freeLetters.count < NUM_CHARS) || (specialClock > 0){
                         
                         addFreeLetter()

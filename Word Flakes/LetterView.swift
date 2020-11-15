@@ -77,7 +77,7 @@ class LetterView: UIButton {
         
         self.layer.borderWidth = 2
         self.layer.shadowOpacity = 1.0
-        self.layer.shadowOffset = cgSize(width:0.0, height:0.0)
+        self.layer.shadowOffset = CGSize(width:0.0, height:0.0)
         self.layer.shadowRadius = 15.0
        
         self.layer.masksToBounds = false
@@ -356,27 +356,29 @@ class LetterView: UIButton {
         let fontSize = [CGFloat(23), CGFloat(23),CGFloat(17), CGFloat(15)] //Font size depends on how many characters the tile has (Usually 1)
         
         
-        let attrs1 : [String: AnyObject] = [NSFontAttributeName:
-            UIFont(name: "HelveticaNeue-Bold", size: fontSize[letter.characters.count])!, NSForegroundColorAttributeName: fontCol[multiplier-1]]
+        let attrs1  = [NSAttributedString.Key.font:
+            UIFont(name: "HelveticaNeue-Bold", size: fontSize[letter.count])!,
+                       NSAttributedString.Key.foregroundColor: fontCol[multiplier-1]]
         
         let attributedText = NSMutableAttributedString(string:letter, attributes: attrs1)
         
         let valueString = "\(value)"
         
         
-        let attrs2 : [String: AnyObject] =
-            [NSFontAttributeName:
-                UIFont(name: "HelveticaNeue-Bold", size: 10)!, NSBaselineOffsetAttributeName: -5, NSForegroundColorAttributeName: fontCol[multiplier-1]]
+        let attrs2 : [NSAttributedString.Key: Any]   =
+            [NSAttributedString.Key.font:
+                UIFont(name: "HelveticaNeue-Bold", size: 10)!
+                , NSAttributedString.Key.baselineOffset: -5,
+                  NSAttributedString.Key.foregroundColor: fontCol[multiplier-1]]
         
         
-        attributedText.appendAttributedString(NSAttributedString(string: valueString, attributes: attrs2))
-        
+        attributedText.append(NSAttributedString(string: valueString, attributes: attrs2))
         
 
         self.backgroundColor = col[multiplier-1]
         self.layer.borderColor = borderCol[multiplier - 1].cgColor
         self.layer.shadowColor = shadowCol[multiplier-1].cgColor
-        self.setAttributedTitle(attributedText, forState: UIControlState.Normal)
+        self.setAttributedTitle(attributedText, for: UIControl.State.normal)
         
 
     }

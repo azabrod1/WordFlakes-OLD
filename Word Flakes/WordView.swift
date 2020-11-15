@@ -28,7 +28,7 @@ class WordView: UIView {
     
     required init? (coder aDecoder :NSCoder){
         super.init(coder: aDecoder)
-        loadDictionary()
+        _ = loadDictionary()
         
     }
     
