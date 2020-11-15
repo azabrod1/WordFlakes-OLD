@@ -39,11 +39,11 @@ class HighScoreController: UIViewController {
 
             }
             scoresText.text = toDisplay
-            scoresText.editable = false
+            scoresText.isEditable = false
             scoresText.allowsEditingTextAttributes = false
             
             scoresText.font = UIFont(name: "Noteworthy-Bold" , size: 19)
-            formatButton(menuReturn)
+            formatButton(b:menuReturn)
         
         }
         
@@ -55,14 +55,14 @@ class HighScoreController: UIViewController {
     }
     
     
-    override func prefersStatusBarHidden() -> Bool {
+    /*override*/ func prefersStatusBarHidden() -> Bool {
         return true
     }
     
     
     
     @IBAction func menuReturnPressed(sender: UIButton) {
-        self.dismissViewControllerAnimated(true, completion: {})
+        self.dismiss(animated:true, completion: {})
     }
 
     
@@ -70,16 +70,16 @@ class HighScoreController: UIViewController {
         
         //b.setTitleColor(UIColor(red: 175/255.0, green:175/255.0, blue: 237/255.0, alpha: 1.0), forState: UIControlState.Normal)
         
-        b.setTitleColor(UIColor.orangeColor(), forState: UIControlState.Normal)
-        b.setTitleColor(UIColor.whiteColor(), forState: UIControlState.Highlighted)
+        b.setTitleColor(UIColor.orange, for: UIControl.State.normal)
+        b.setTitleColor(UIColor.white, for: UIControl.State.highlighted)
         b.layer.borderWidth = 2
-        b.layer.borderColor = (UIColor.orangeColor()).CGColor
+        b.layer.borderColor = (UIColor.orange).cgColor
         
         
         b.layer.cornerRadius = 10
         b.layer.shadowOffset = CGSize(width: 2, height: 2)
         b.layer.shadowOpacity = 1.0
-        b.layer.shadowColor = UIColor.whiteColor().CGColor
+        b.layer.shadowColor = UIColor.white.cgColor
         
         b.layer.masksToBounds = true
         
@@ -89,13 +89,13 @@ class HighScoreController: UIViewController {
         let btnGradient = CAGradientLayer()
         btnGradient.frame = b.bounds
         btnGradient.colors =
-            [UIColor(red: 102.0/255.0, green:102.0/255.0, blue: 102.0/255.0, alpha: 1.0).CGColor,
-             UIColor(red: 51/255, green:51/255, blue: 51/255, alpha: 1).CGColor]
+            [UIColor(red: 102.0/255.0, green:102.0/255.0, blue: 102.0/255.0, alpha: 1.0).cgColor,
+             UIColor(red: 51/255, green:51/255, blue: 51/255, alpha: 1).cgColor]
         
         btnGradient.masksToBounds = true
         
         
-        b.layer.insertSublayer(btnGradient, atIndex: 0)
+        b.layer.insertSublayer(btnGradient, at: 0)
         
         
     }
