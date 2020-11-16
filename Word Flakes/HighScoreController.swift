@@ -60,7 +60,7 @@ class HighScoreController: UIViewController {
     
     
     
-    @IBAction func menuReturnPressed(sender: UIButton) {
+    @IBAction func menuReturnPressed(_ sender: UIButton) {
         self.dismiss(animated:true, completion: {})
     }
 
@@ -98,12 +98,5 @@ class HighScoreController: UIViewController {
         
         
     }
-    
-    
-    
-    
-    
-    
-    
-
+   
 }

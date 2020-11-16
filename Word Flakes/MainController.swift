@@ -69,21 +69,20 @@ class MainController: UIViewController {
     private var score       = 0
     
 // MARK: control actions
+   
     
-    @IBAction func backspaceButtonClicked(sender: UIButton) {
-        
+    @IBAction func backspaceButtonClicked(_ sender: UIButton) {
+    
         if (gameState != GameState.GameStarted){return}
         
         let value = wordView.removeLastLetter()
         
         addScore(scoreAdd:0, energyAdd: -Double(value) , display: true)
-       
+        
     }
     
+    @IBAction func playButtonClicked(_ sender: UIButton) {
     
-    @IBAction func playButtonClicked(sender: UIButton) {
-        
-        
         if (gameState == GameState.GameOver){
             // restart the game
             run()
@@ -95,9 +94,10 @@ class MainController: UIViewController {
         if (toAdd != 0){
             addScore(scoreAdd:toAdd, energyAdd: Double(toAdd ), display: true)
         }
-        
+    
     }
-        
+    
+    
     /*This function identifies the Special Tile and calls approapreite method(s) associated with
    that tile */
     @objc
@@ -189,7 +189,7 @@ class MainController: UIViewController {
     }
 
     
-    @IBAction func pausePressed(sender: UIButton) {
+    @IBAction func pausePressed(_ sender: UIButton) {
         
         
         gameStateBeforePause = gameState

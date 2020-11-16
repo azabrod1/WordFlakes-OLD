@@ -30,21 +30,21 @@ class MenuController: UIViewController {
     // MARK: control actions
     
  
-    @IBAction func resumeTouchedDown(sender: UIButton) {
+    @IBAction func resumeTouchedDown(_ sender: UIButton) {
         animateButtonPress(b:sender)
     }
     
-    @IBAction func restartTouchedDown(sender: UIButton) {
+    @IBAction func restartTouchedDown(_ sender: UIButton) {
         animateButtonPress(b:sender)
     }
     
-    @IBAction func instructionsTouchedDown(sender: UIButton) {
+    @IBAction func instructionsTouchedDown(_ sender: UIButton) {
         animateButtonPress(b:sender)
     }
  
 
     
-    @IBAction func HighScoreButtonPressed(sender: UIButton) {
+    @IBAction func HighScoreButtonPressed(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let vc = storyboard
             .instantiateViewController(withIdentifier:"High Score Controller") as! HighScoreController
@@ -56,7 +56,7 @@ class MenuController: UIViewController {
         self.present(vc, animated: true, completion: nil)
     }
     
-    @IBAction func restartPressed(sender: UIButton) {
+    @IBAction func restartPressed(_ sender: UIButton) {
         
   
         self.dismiss(animated:true, completion: {});
@@ -66,7 +66,7 @@ class MenuController: UIViewController {
     
     }
     
-    @IBAction func resumePressed(sender: UIButton){
+    @IBAction func resumePressed(_ sender: UIButton){
         
         self.dismiss(animated:true, completion: {});
         mainController.gameState = mainController.gameStateBeforePause
@@ -74,7 +74,7 @@ class MenuController: UIViewController {
     }
     
     
-    @IBAction func instructionsPressed(sender: UIButton) {
+    @IBAction func instructionsPressed(_ sender: UIButton) {
     }
     
     override func viewDidLoad() {
@@ -136,10 +136,12 @@ class MenuController: UIViewController {
     }
     
     
-    func prefersStatusBarHidden() -> Bool {
-        return true
+    //override func prefersStatusBarHidden() -> Bool {
+    //    return true
+    //}
+    override var prefersStatusBarHidden: Bool {
+        return false
     }
-    
     
     
 }
