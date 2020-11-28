@@ -104,8 +104,7 @@ class LetterView: UIButton {
         }
         
         
-        
-        
+    
         // how many times it bumps against the wall
         maximumAge = 1 + Int(arc4random_uniform(3))
         
@@ -255,13 +254,13 @@ class LetterView: UIButton {
         arc4random()
         // select random letter
     
-        var letterFrequency = [18, 4, 4, 8, 24, 4, 4, 4, 18, 2, 2, 8, 4, 12, 16, 4, 1, 12, 10, 12, 8, 4, 4, 2, 4, 2, 1, 2, 1, 1, 2, 80, 0]
+        var letterFrequency = [18, 4, 4, 8, 24, 4, 4, 4, 18, 2, 2, 8, 4, 12, 16, 4, 1, 12, 10, 12, 8, 4, 4, 2, 4, 2, 1, 2, 1, 4, 4, 4, 4]
         var allLetters = Array(65...90).map {String(UnicodeScalar($0))}
         
         
         allLetters += ["QU", "ED", "ING", "?", "ER", "*", "BOOM"]
         
-        
+    
         
         
         
